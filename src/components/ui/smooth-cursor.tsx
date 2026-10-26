@@ -4,6 +4,8 @@ import { motion, useSpring } from "motion/react";
 import type { FC } from "react";
 import { useEffect, useRef, useState } from "react";
 
+import { useMediaQuery } from "@/hooks/use-media-query";
+
 interface Position {
   x: number;
   y: number;
@@ -90,6 +92,8 @@ export function SmoothCursor({
     restDelta: 0.001,
   },
 }: SmoothCursorProps) {
+  const isFinePointer = useMediaQuery("(pointer: fine)");
+  const [hasMoved, setHasMoved] = useState(false);
   const [isMoving, setIsMoving] = useState(false);
   const lastMousePos = useRef<Position>({ x: 0, y: 0 });
   const velocity = useRef<Position>({ x: 0, y: 0 });
@@ -111,6 +115,8 @@ export function SmoothCursor({
   });
 
   useEffect(() => {
+    if (!isFinePointer) return;
+
     const updateVelocity = (currentPos: Position) => {
       const currentTime = Date.now();
       const deltaTime = currentTime - lastUpdateTime.current;
@@ -128,6 +134,16 @@ export function SmoothCursor({
 
     const smoothMouseMove = (e: MouseEvent) => {
       const currentPos = { x: e.clientX, y: e.clientY };
+
+      setHasMoved((prev) => {
+        if (!prev) {
+          cursorX.jump(currentPos.x);
+          cursorY.jump(currentPos.y);
+          return true;
+        }
+        return prev;
+      });
+
       updateVelocity(currentPos);
 
       const speed = Math.sqrt(
@@ -179,7 +195,11 @@ export function SmoothCursor({
       document.body.style.cursor = "auto";
       if (rafId) cancelAnimationFrame(rafId);
     };
-  }, [cursorX, cursorY, rotation, scale]);
+  }, [cursorX, cursorY, rotation, scale, isFinePointer]);
+
+  if (!isFinePointer || !hasMoved) {
+    return null;
+  }
 
   return (
     <motion.div
