@@ -30,6 +30,7 @@
     "check-types": "tsc --noEmit --pretty",
     "format:check": "prettier --check \"**/*.{ts,tsx,mdx}\" --cache",
     "format:write": "prettier --write \"**/*.{ts,tsx,mdx}\" --cache",
+    "registry:build": "tsx --tsconfig ./tsconfig.scripts.json ./src/scripts/build-registry.mts",
     "capture": "tsx --tsconfig ./tsconfig.scripts.json ./src/scripts/capture.mts",
     "generate-libphonenumber-metadata": "libphonenumber-metadata-generator ./src/assets/libphonenumber.metadata.json --countries PK,AE --extended",
     "upgrade:next": "npx @next/codemod@latest upgrade latest",
